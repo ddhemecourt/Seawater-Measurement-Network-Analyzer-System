@@ -43,7 +43,7 @@ namespace Seawater_Measurement
 
         //Declare new excel workbook
         excel_doc Workbook;
-
+        int x = 5;
         int cnt; //Counts measurment cycles
         int prev;
 
