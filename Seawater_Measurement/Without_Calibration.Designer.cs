@@ -30,6 +30,7 @@
         {
             this.components = new System.ComponentModel.Container();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.inputPowerLabel = new System.Windows.Forms.Label();
             this.IFtxt = new System.Windows.Forms.Label();
             this.numPoints = new System.Windows.Forms.Label();
             this.label21 = new System.Windows.Forms.Label();
@@ -75,7 +76,6 @@
             this.dataCountTotal = new System.Windows.Forms.Label();
             this.Status = new System.Windows.Forms.Label();
             this.matlabDataAnalysis = new System.Windows.Forms.Button();
-            this.inputPowerLabel = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -99,6 +99,16 @@
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Set By User";
+            // 
+            // inputPowerLabel
+            // 
+            this.inputPowerLabel.AutoSize = true;
+            this.inputPowerLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.inputPowerLabel.Location = new System.Drawing.Point(285, 145);
+            this.inputPowerLabel.Name = "inputPowerLabel";
+            this.inputPowerLabel.Size = new System.Drawing.Size(14, 20);
+            this.inputPowerLabel.TabIndex = 24;
+            this.inputPowerLabel.Text = "-";
             // 
             // IFtxt
             // 
@@ -553,16 +563,6 @@
             this.matlabDataAnalysis.Text = "Matlab Data Analysis";
             this.matlabDataAnalysis.UseVisualStyleBackColor = true;
             this.matlabDataAnalysis.Click += new System.EventHandler(this.matlabDataAnalysis_Click);
-            // 
-            // inputPowerLabel
-            // 
-            this.inputPowerLabel.AutoSize = true;
-            this.inputPowerLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.inputPowerLabel.Location = new System.Drawing.Point(285, 145);
-            this.inputPowerLabel.Name = "inputPowerLabel";
-            this.inputPowerLabel.Size = new System.Drawing.Size(14, 20);
-            this.inputPowerLabel.TabIndex = 24;
-            this.inputPowerLabel.Text = "-";
             // 
             // Without_Calibration
             // 

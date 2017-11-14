@@ -681,16 +681,13 @@ namespace Seawater_Measurement
         {
             dataCnt = dataCnt + 1;
 
-            TimeDiv = dataCnt / TimeNum;
-
-            if(TimeDiv == 1)
+            if(dataCnt == 15)
             {
                 dataCnt = 0;
                 Status.Text = "Measurement In Progress";
                 Status.Refresh();
                 Thread.Sleep(1000);
                 microwaveDataRetreival();
-                TimeDiv = 0;
                 dataCol = dataCol + 2;
 
             }
