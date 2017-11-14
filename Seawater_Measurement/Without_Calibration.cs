@@ -546,7 +546,7 @@ namespace Seawater_Measurement
 
                 Workbook = new excel_doc();
                 Workbook.createDoc();
-                Workbook.app.ScreenUpdating = false;
+                //Workbook.app.ScreenUpdating = false;
                 addGeneralInfo();
                 Workbook.addData(2, 1, "Time:", "raw_data");
                 Workbook.addData(3, 1, "Cavity Temp:", "raw_data");
