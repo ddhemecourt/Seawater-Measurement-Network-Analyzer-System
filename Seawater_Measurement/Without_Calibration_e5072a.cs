@@ -544,6 +544,31 @@ namespace Seawater_Measurement
 
         }
 
+        private void addGeneralInfo()
+        {
+            Workbook.addData(1, 1, "Experimentor Last Name:", "gen_info");
+            Workbook.addData(1, 2, ExpLastName.Text, "gen_info");
+            Workbook.addData(3, 1, "Number of Sweep Averages:", "gen_info");
+            Workbook.addData(3, 2, AvgFactor.Text, "gen_info");
+            Workbook.addData(5, 1, "Number of Data Points:", "gen_info");
+            Workbook.addData(5, 2, numOfPoints, "gen_info");
+            Workbook.addData(7, 1, "IF Bandwidth:", "gen_info");
+            Workbook.addData(7, 2, IFBandwidth.Text, "gen_info");
+            Workbook.addData(9, 1, "Substance:", "gen_info");
+            Workbook.addData(9, 2, Substance.Text, "gen_info");
+            ExpDay.Text = DateTime.Now.ToString("en-US");
+            Workbook.addData(11, 1, "Experiment Start:", "gen_info");
+            Workbook.addData(11, 2, ExpDay.Text, "gen_info");
+            Workbook.addData(13, 1, "Tube Number:", "gen_info");
+            Workbook.addData(13, 2, TubeNumber.Text, "gen_info");
+
+
+            Workbook.general_info.Rows.AutoFit();
+            Workbook.general_info.Columns.AutoFit();
+
+
+        }
+
         private bool checkFileExists()
         {
             string path = pathname.Text + filename.Text + ".xls";
