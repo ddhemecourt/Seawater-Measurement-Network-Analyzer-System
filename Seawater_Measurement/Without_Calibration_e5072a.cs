@@ -206,10 +206,15 @@ namespace Seawater_Measurement
             D1 = 333322464108.355;
 
             //Coefficients for Thermistor 2
-            A2 = -0.684733865;
-            B2 = 2037.96368;
-            C2 = 119583683;
-            D2 = -3436270130000;
+            //A2 = -0.684733265;
+            //B2 = 2037.96368;
+            //C2 = 119583683;
+            //D2 = -3436270130000;
+            A2 = -0.876691731;
+            B2 = 2127.96669;
+            C2 = 115904092;
+            D2 = -3350113390000;
+
             //Coefficients for Thermistor 3
             A3 = -5.19939086186174;
             B3 = 4539.48650452823;
@@ -226,10 +231,14 @@ namespace Seawater_Measurement
             D11 = 38930303174.3173;
 
             //Coefficients for Thermistor 2
-            A22 = -0.684733865;
-            B22 = 2037.96368;
-            C22 = 119583683;
-            D22 = -3436270130000;
+            //A22 = -0.684733265;
+            //B22 = 2037.96368;
+            //C22 = 119583683;
+            //D22 = -3436270130000;
+            A22 = -0.876691731;
+            B22 = 2127.96669;
+            C22 = 115904092;
+            D22 = -3350113390000;
             //Coefficients for Thermistor 3
             A33 = -4.95555668301354;
             B33 = 4402.9360100307;
@@ -531,6 +540,8 @@ namespace Seawater_Measurement
                 string path = string.Format("{0}{1}.xlsx", pathname.Text, filename.Text);
                 Workbook.workbook.SaveAs(path);
 
+                addGeneralInfo();
+
                 start = DateTime.Now;
                 startMeasurment();
             }
@@ -556,7 +567,8 @@ namespace Seawater_Measurement
             Workbook.addData(7, 2, IFBandwidth.Text, "gen_info");
             Workbook.addData(9, 1, "Substance:", "gen_info");
             Workbook.addData(9, 2, Substance.Text, "gen_info");
-            ExpDay.Text = DateTime.Now.ToString("en-US");
+            ExpDay.Text = DateTime.Now.ToString();
+            ExpDay.Refresh();
             Workbook.addData(11, 1, "Experiment Start:", "gen_info");
             Workbook.addData(11, 2, ExpDay.Text, "gen_info");
             Workbook.addData(13, 1, "Tube Number:", "gen_info");
@@ -595,11 +607,11 @@ namespace Seawater_Measurement
 
             string AverageFactor = ":SENS:AVER:COUN " + AvgFactor.Text + ";";
             NA.Write(AverageFactor);
-
+            /*
             string IFBandw = ":SENS:BAND?;*WAI;";
             NA.Write(IFBandw);
             IFBandwidth.Text = NA.ReadString();
-
+            */
             NA.Write(":SENS:AVER:CLE;");
             NA.Write("SENS:AVER ON;");
 
@@ -624,8 +636,8 @@ namespace Seawater_Measurement
             cnt = 1;
             tempRow = 2;
 
-            string points = string.Format(":SENS:SWE:POIN {0};", numPoints.Text);
-            NA.Write(points);
+            //string points = string.Format(":SENS:SWE:POIN {0};", numPoints.Text);
+            //NA.Write(points);
             // microwaveSetupData();
             measure();
         }
