@@ -84,9 +84,9 @@ namespace Seawater_Measurement
         string start_freq;
         string stop_freq;
         object Q_L;
-        object Q_UL;
-        object f_center;
-        object s21;
+        object Q_NA;
+        object f_res;
+        object f_NA;
 
 
         //Temperature variables
@@ -143,7 +143,9 @@ namespace Seawater_Measurement
         int j;
 
 
-        
+        string numberOfPoints;
+
+
 
         //Parameters for numerical Steinhart-Hart inversion
         string T_Upper_Text;
@@ -185,11 +187,11 @@ namespace Seawater_Measurement
         {
             InitializeComponent();
 
-          //  SetThreadExecutionState(
+            //  SetThreadExecutionState(
 
-         //    ES_CONTINUOUS | ES_SYSTEM_REQUIRED | ES_DISPLAY_REQUIRED);
+            //    ES_CONTINUOUS | ES_SYSTEM_REQUIRED | ES_DISPLAY_REQUIRED);
 
-
+            ExpDay.Text = DateTime.Now.ToString();
 
             DMM.Write("func 'RES';");
 
@@ -492,14 +494,16 @@ namespace Seawater_Measurement
             Status.Text = "Running Matlab SVD. Do Not Modify Excel File";
             Status.Refresh();
 
+            runScript(matlab);
+
             j = 2;
-            while (Workbook.rawData.Cells[10, j].Value2 != null)
+       /*     while (Workbook.rawData.Cells[10, j].Value2 != null)
             {
                 string address1 = Workbook.CellAddress(10, j);
                 string address2 = Workbook.CellAddress(1608, j);
                 string address = string.Format(address1 + ":" + address2);
                 Console.WriteLine("Column address = " + address);
-                runScript(matlab, address);
+                
                 Workbook.addData(j / 2, 2, Q_L.ToString(), "Q_Loaded");
                 Workbook.addData(j / 2, 3, Q_L.ToString(), "SVD vs NA Diff");
                 Workbook.addData(j / 2, 2, Q_UL.ToString(), "Q_Unloaded");
@@ -511,32 +515,49 @@ namespace Seawater_Measurement
                 matlab.Execute("clear");
                 j = j + 2;
 
-            }
+            }*/
         }
 
 
 
         private void ExecuteMeasurment_Click(object sender, EventArgs e)
         {
-            if (checkFileExists() == true)
+            /* if (checkFileExists() == true)
+             {
+                 generateErrorMessage("Filename Already Exists");
+                 return;
+             }
+             */
+
+            if (ExpLastName.Text != "" && Substance.Text != "" && TubeNumber.Text != "")
             {
-                generateErrorMessage("Filename Already Exists");
-                return;
-            }
+
+                StopMeas.Enabled = true;
+                ExecuteMeasurment.Enabled = false;
 
 
-            if (ExpLastName.Text != "" && Substance.Text != "" && TubeNumber.Text != "" && filename.Text != "")
-            {
                 Workbook = new excel_doc();
                 Workbook.createDoc();
-               // Workbook.app.ScreenUpdating = false;
+                // Workbook.app.ScreenUpdating = false;
                 Workbook.addData(3, 1, "Cavity Temp:", "raw_data");
                 Workbook.addData(4, 1, "Room Temp:", "raw_data");
                 Workbook.addData(5, 1, "NA Calc Center:", "raw_data");
                 Workbook.addData(6, 1, "NA Calc BW:", "raw_data");
                 Workbook.addData(7, 1, "NA Calc IL:", "raw_data");
                 Workbook.addData(8, 1, "NA Calc Q:", "raw_data");
-                Workbook.addData(9, 1, "Data Set:", "raw_data");
+                Workbook.addData(9, 1, "Frequencies", "raw_data");
+                Workbook.addData(9, 2, "S21", "raw_data");
+                dataCol = 2;
+
+                Q_L = null;
+               // Q_UL = null;
+
+                string todayDate = DateTime.Today.ToString("dd-MM-yyyy");
+
+                filename.Text = todayDate + "_" + Substance.Text + "_" + tempSet.Text + "C" + filename_notes.Text;
+                filename.Refresh();
+                checkFileExists();
+
                 string path = string.Format("{0}{1}.xlsx", pathname.Text, filename.Text);
                 Workbook.workbook.SaveAs(path);
 
@@ -561,10 +582,29 @@ namespace Seawater_Measurement
             Workbook.addData(1, 2, ExpLastName.Text, "gen_info");
             Workbook.addData(3, 1, "Number of Sweep Averages:", "gen_info");
             Workbook.addData(3, 2, AvgFactor.Text, "gen_info");
+
+
+            NA.Write(":SENS:SWE:POIN?;*WAI;");
+            numPoints.Text = NA.ReadString();
+            numPoints.Refresh();
+            Console.WriteLine(numPoints.Text);
             Workbook.addData(5, 1, "Number of Data Points:", "gen_info");
-            Workbook.addData(5, 2, numOfPoints, "gen_info");
+            Workbook.addData(5, 2, numPoints.Text, "gen_info");
+
+            NA.Write(":SENS:BWID:RES?;*WAI;");
+            IF_BW.Text = NA.ReadString();
+            IF_BW.Refresh();
+            Console.WriteLine(IF_BW.Text);
             Workbook.addData(7, 1, "IF Bandwidth:", "gen_info");
-            Workbook.addData(7, 2, IFBandwidth.Text, "gen_info");
+            Workbook.addData(7, 2, IF_BW.Text, "gen_info");
+
+            NA.Write(":SOUR:POW:LEV:IMM:AMPL?;*WAI;");
+            InputPow.Text = NA.ReadString();
+            InputPow.Refresh();
+            Console.WriteLine(InputPow.Text);
+            Workbook.addData(15, 1, "Input Power (dB):", "gen_info");
+            Workbook.addData(15, 2, InputPow.Text, "gen_info");
+
             Workbook.addData(9, 1, "Substance:", "gen_info");
             Workbook.addData(9, 2, Substance.Text, "gen_info");
             ExpDay.Text = DateTime.Now.ToString();
@@ -574,6 +614,45 @@ namespace Seawater_Measurement
             Workbook.addData(13, 1, "Tube Number:", "gen_info");
             Workbook.addData(13, 2, TubeNumber.Text, "gen_info");
 
+            NA.Write(":SENS:FREQ:STAR?;*WAI;");
+            start_freq = NA.ReadString();
+            Workbook.addData(17, 1, "Start Frequency:", "gen_info");
+            Workbook.addData(17, 2, start_freq, "gen_info");
+
+            NA.Write(":SENS:FREQ:STOP?;*WAI;");
+            stop_freq = NA.ReadString();
+            Workbook.addData(19, 1, "Stop Frequency:", "gen_info");
+            Workbook.addData(19, 2, stop_freq, "gen_info");
+
+            NA.Write(":SENS:FREQ:DATA?;*WAI;");
+            string freqs = NA.ReadString(ARRAYSIZE);
+            string[] freq_array = freqs.Split(',');
+
+            for (j = 0; j < freq_array.Length; j++)
+            {
+                string[] dpoint = freq_array[j].Split('E');
+                try
+                {
+                    double mag = Convert.ToDouble(dpoint[0]);
+                    double exp = Convert.ToDouble(dpoint[1]);
+                    double value = mag * Math.Pow(10, exp);
+
+                    if (value == 0)
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        Workbook.addData(j + 10, 1, Convert.ToString(value), "raw_data");
+                    }
+                }
+
+                catch
+                {
+                    continue;
+                }
+
+            }
 
             Workbook.general_info.Rows.AutoFit();
             Workbook.general_info.Columns.AutoFit();
@@ -583,14 +662,43 @@ namespace Seawater_Measurement
 
         private bool checkFileExists()
         {
-            string path = pathname.Text + filename.Text + ".xls";
+            string path = pathname.Text + filename.Text;
             Console.WriteLine("Path = " + path);
-            if (File.Exists(@path))
+            if (Directory.Exists(@path))
             {
+
+                pathname.Text = pathname.Text + filename.Text + "\\";
+                pathname.Refresh();
+
+                string[] files = Directory.GetFiles(path);
+                int num = -1;
+
+                foreach (string file in files)
+                {
+                    string fileNameOnly = Path.GetFileNameWithoutExtension(file);
+
+                    if (fileNameOnly.Contains('$'))
+                        continue;
+
+                    int lastUnderscore = fileNameOnly.LastIndexOf("_");
+                    int fileNum = Convert.ToInt16(fileNameOnly.Substring(lastUnderscore+1));
+                    Console.WriteLine(fileNum);
+
+
+                    if(fileNum >= num)
+                        num = fileNum + 1;    
+                }
+
+                filename.Text = filename.Text + "_" + Convert.ToString(num);
+
                 return true;
             }
             else
             {
+                System.IO.Directory.CreateDirectory(path);
+                pathname.Text = pathname.Text + filename.Text + "\\";
+                pathname.Refresh();
+                filename.Text = filename.Text + "_0";
                 return false;
             }
 
@@ -639,6 +747,8 @@ namespace Seawater_Measurement
             //string points = string.Format(":SENS:SWE:POIN {0};", numPoints.Text);
             //NA.Write(points);
             // microwaveSetupData();
+
+
             measure();
         }
 
@@ -719,44 +829,44 @@ namespace Seawater_Measurement
             Excel.Range wrksht_rng = Workbook.rawData.Cells[2, dataCol];
             wrksht_rng.NumberFormat = "[h]:mm:ss;@";
 
-            Workbook.addData(dataCol / 2, 1, currentTime, "q_val");
-            wrksht_rng = Workbook.qVal.Cells[dataCol / 2, 1];
+            Workbook.addData(dataCol/2, 1, currentTime, "q_val");
+            wrksht_rng = Workbook.qVal.Cells[dataCol/2, 1];
             wrksht_rng.NumberFormat = "[h]:mm:ss;@";
 
-            Workbook.addData(dataCol / 2, 1, currentTime, "cent_freq");
-            wrksht_rng = Workbook.centFreq.Cells[dataCol / 2, 1];
+            Workbook.addData(dataCol/2, 1, currentTime, "cent_freq");
+            wrksht_rng = Workbook.centFreq.Cells[dataCol/2, 1];
             wrksht_rng.NumberFormat = "[h]:mm:ss;@";
 
-            Workbook.addData(dataCol / 2, 1, currentTime, "cavT");
-            wrksht_rng = Workbook.cavityTemp.Cells[dataCol / 2, 1];
+            Workbook.addData(dataCol/2, 1, currentTime, "cavT");
+            wrksht_rng = Workbook.cavityTemp.Cells[dataCol/2, 1];
             wrksht_rng.NumberFormat = "[h]:mm:ss;@";
 
-            Workbook.addData(dataCol / 2, 1, currentTime, "roomT");
-            wrksht_rng = Workbook.roomTemp.Cells[dataCol / 2, 1];
+            Workbook.addData(dataCol/2, 1, currentTime, "roomT");
+            wrksht_rng = Workbook.roomTemp.Cells[dataCol/2, 1];
             wrksht_rng.NumberFormat = "[h]:mm:ss;@";
 
-            Workbook.addData(dataCol / 2, 1, currentTime, "Q_Loaded");
-            wrksht_rng = Workbook.Q_L.Cells[dataCol / 2, 1];
+            Workbook.addData(dataCol/2, 1, currentTime, "Q_Loaded");
+            wrksht_rng = Workbook.Q_L.Cells[dataCol/2, 1];
             wrksht_rng.NumberFormat = "[h]:mm:ss;@";
 
-            Workbook.addData(dataCol / 2, 1, currentTime, "SVD vs NA Diff");
-            wrksht_rng = Workbook.svd_na.Cells[dataCol / 2, 1];
+            Workbook.addData(dataCol/2, 1, currentTime, "SVD vs NA Diff");
+            wrksht_rng = Workbook.svd_na.Cells[dataCol/2, 1];
             wrksht_rng.NumberFormat = "[h]:mm:ss;@";
 
-            Workbook.addData(dataCol / 2, 1, currentTime, "Q_Unloaded");
-            wrksht_rng = Workbook.Q_UL.Cells[dataCol / 2, 1];
+            Workbook.addData(dataCol/2, 1, currentTime, "Q_Unloaded");
+            wrksht_rng = Workbook.Q_UL.Cells[dataCol/2, 1];
             wrksht_rng.NumberFormat = "[h]:mm:ss;@";
 
-            Workbook.addData(dataCol / 2, 1, currentTime, "f_center");
-            wrksht_rng = Workbook.f_center.Cells[dataCol / 2, 1];
+            Workbook.addData(dataCol/2, 1, currentTime, "f_center");
+            wrksht_rng = Workbook.f_center.Cells[dataCol/2, 1];
             wrksht_rng.NumberFormat = "[h]:mm:ss;@";
 
-            Workbook.addData(dataCol / 2, 1, currentTime, "s21");
-            wrksht_rng = Workbook.s21.Cells[dataCol / 2, 1];
+            Workbook.addData(dataCol/2, 1, currentTime, "s21");
+            wrksht_rng = Workbook.s21.Cells[dataCol/2, 1];
             wrksht_rng.NumberFormat = "[h]:mm:ss;@";
 
-            Workbook.addData(dataCol / 2, 1, currentTime, "svd_na_center");
-            wrksht_rng = Workbook.svd_na_center.Cells[dataCol / 2, 1];
+            Workbook.addData(dataCol/2, 1, currentTime, "svd_na_center");
+            wrksht_rng = Workbook.svd_na_center.Cells[dataCol/2, 1];
             wrksht_rng.NumberFormat = "[h]:mm:ss;@";
 
             time.Stop();
@@ -800,18 +910,26 @@ namespace Seawater_Measurement
             }
 
             //Calculate BW, Cent Freq, Loss and Q
-            NA.Write(":CALC:MARK:BWID ON;"); //Turn on bandwidth marker display
-            NA.Write(":CALC:MARK:REF ON;");  //Turn reference marker on
-            NA.Write(":CALC:MARK:BWID:THR -3"); //Set -3db as the Bandwidth threshold
-            NA.Write(":CALC:MARK:BWID:DATA?");// Ask for the data, which gets returned as {BW},{Cent Freq.},{Q},{Loss}
+            NA.Write(":CALC:SEL:MARK:BWID ON;*WAI;"); //Turn on bandwidth marker display
+          //  NA.Write(":CALC:SEL:MARK:REF ON;*WAI;");  //Turn reference marker on
+          //  NA.Write(":CALC:SEL:MARK:ACT ON;*WAI;");
+            NA.Write(":CALC:SEL:MARK:STAT 1;*WAI;");
+            NA.Write(":CALC:SEL:MARK:BWID:THR -3;"); //Set -3db as the Bandwidth threshold
+                                                          //  NA.Write(":CALC:PAR:SEL;*WAI;");
 
+       //     NA.Write(":CALC:SEL:MARK:BWID:THR?;WAI*;");
+       //     string test = NA.ReadString();
+       //     Console.WriteLine(test);
+
+            NA.Write(":CALC:SEL:MARK:BWID:DATA?;");// Ask for the data, which gets returned as {BW},{Cent Freq.},{Q},{Loss}
+            string returnedBW = NA.ReadString(ARRAYSIZE);
             try
             {
                 double magnitude;
                 double power;
                 double val;
-
-                string returnedBW = NA.ReadString(ARRAYSIZE);
+                Console.WriteLine("HERERERE");
+                //string returnedBW = NA.ReadString(ARRAYSIZE);
                 Console.WriteLine(returnedBW);
 
                 string[] outpData = returnedBW.Split(',');
@@ -853,6 +971,7 @@ namespace Seawater_Measurement
             }
             catch
             {
+                Console.WriteLine("returning");
                 return;
             }
 
@@ -860,17 +979,17 @@ namespace Seawater_Measurement
 
             //add q,bw,il,and cent freq to excel doc
             Workbook.addData(8, dataCol, markerQ, "raw_data");
-            Workbook.addData(dataCol / 2, 2, markerQ, "q_val");
+            Workbook.addData(dataCol/2, 2, markerQ, "q_val");
             Workbook.addData(5, dataCol, centerFreq, "raw_data");
-            Workbook.addData(dataCol / 2, 2, centerFreq, "cent_freq");
+            Workbook.addData(dataCol/2, 2, centerFreq, "cent_freq");
             Workbook.addData(6, dataCol, bandwidth, "raw_data");
             Workbook.addData(7, dataCol, ILValue, "raw_data");
 
             //Record temp with the sampled data
             Workbook.addData(3, dataCol, T2_TXT.Text, "raw_data");
             Workbook.addData(4, dataCol, T3_TXT.Text, "raw_data");
-            Workbook.addData(dataCol / 2, 2, T2_TXT.Text, "cavT");
-            Workbook.addData(dataCol / 2, 2, T3_TXT.Text, "roomT");
+            Workbook.addData(dataCol/2, 2, T2_TXT.Text, "cavT");
+            Workbook.addData(dataCol/2, 2, T3_TXT.Text, "roomT");
 
         }
 
@@ -931,8 +1050,11 @@ namespace Seawater_Measurement
             //T1_TXT.Text = temp1;
 
             double t2 = SOLVE_2(fnc_res2, 323.15, 263.15, 0.00000005);
+            Console.WriteLine("T2 =" + t2);
             t2 = Math.Round((t2 - 273.15), 4);
+            Console.WriteLine("T2 =" + t2);
             temp2 = Convert.ToString(t2);
+            Console.WriteLine("T2 =" + temp2);
             T2_TXT.Text = temp2;
 
             double t3 = SOLVE_3(fnc_res3, 323.15, 263.15, 0.00000005);
@@ -956,39 +1078,79 @@ namespace Seawater_Measurement
             }            
         }
 
-        public void runScript(MLApp.MLApp matlab, string range)
+        public void runScript(MLApp.MLApp matlab)
         {
 
             double start = Convert.ToDouble(start_freq);
             Console.WriteLine("Start freq = " + start);
             double stop = Convert.ToDouble(stop_freq);
             Console.WriteLine("Stop freq = " + stop);
-            double bw = Convert.ToDouble(span);
-            Console.WriteLine("Bandwidth = " + bw);
+
+
+            string address1 = Workbook.CellAddress(10, 2);
+            string address2 = Workbook.CellAddress(1610, dataCol);
+            string rawDataRange = string.Format(address1 + ":" + address2);  //raw data sheet range
+
+
+            address1 = Workbook.CellAddress(8, 2);
+            address2 = Workbook.CellAddress(8, dataCol);
+            string qRange = string.Format(address1 + ":" + address2);  //Q and center freq sheet range
+
+
+            address1 = Workbook.CellAddress(8, 2);
+            address2 = Workbook.CellAddress(8, dataCol);
+            string centFreqRange = string.Format(address1 + ":" + address2);
 
 
             Workbook.workbook.Save();
-            string path = pathname.Text;
-            string excel_file = pathname.Text + filename.Text + ".xlsx";
+            string path = "C:\\Usersadmin\\Desktop\\Seawater_Files\\";
+            string excel_file = string.Format("{0}{1}.xlsx", pathname.Text, filename.Text);
+            Console.WriteLine("XXXXXXX");
+            Console.WriteLine(excel_file);
+
 
             // Change to the directory where the MATLAB function is located 
             matlab.Execute(@path);
             matlab.PutWorkspaceData("data_file", "base", excel_file);
             matlab.PutWorkspaceData("start", "base", start);
             matlab.PutWorkspaceData("stop", "base", stop);
-            matlab.PutWorkspaceData("span", "base", bw);
-            matlab.PutWorkspaceData("range", "base", range);
+            matlab.PutWorkspaceData("range1", "base", rawDataRange);
+            matlab.PutWorkspaceData("range2", "base", qRange);
+            matlab.PutWorkspaceData("range3", "base", centFreqRange);
+
+
 
             //Run the SVD curve fitting method
-            Console.WriteLine(matlab.Execute("[Q_L,Q_UL,f_center,s21] = original_expression_SVD(data_file,start,stop,span,range)"));
+            Console.WriteLine(matlab.Execute("[Q_L, Q_NA, f_res, f_NA] = Seawater_SVD_New(data_file, start, stop, range1, range2, range3)"));
             Thread.Sleep(3000);
 
 
             //Obtain the returned values from the workspace
             Q_L = getQ(matlab)[0];
-            Q_UL = getQ(matlab)[1];
-            f_center = getQ(matlab)[2];
-            s21 = getQ(matlab)[3];
+            Q_NA = getQ(matlab)[1];
+            f_res = getQ(matlab)[2];
+            f_NA = getQ(matlab)[3];
+
+            double[,] qLArray = (double[,])Q_L;
+           // double[,] qNAArray = (double[,])Q_L;
+            double[,] fResArray = (double[,])f_res;
+           // double[,] qLArray = (double[,])Q_L;
+
+            int i = 1;
+            
+            foreach(double item in qLArray)
+            {
+                Workbook.addData(i, 2, item.ToString(), "Q_Loaded");
+                i++;
+            }
+
+            i = 1;
+            foreach (double item in fResArray)
+            {
+                Workbook.addData(i, 2, item.ToString(), "f_center");
+                i++;
+            }
+
 
         }
 
@@ -996,17 +1158,21 @@ namespace Seawater_Measurement
 
         public object[] getQ(MLApp.MLApp matlab)
         {
-            object qUL;
             object qL;
-            object f_center;
-            object s21;
+            object qNA;
+            object fRes;
+            object fNA;
+
+            var test = matlab.GetVariable("Q_L", "base");
+            Console.WriteLine("GET VARIABLE TEST");
+            Console.WriteLine();
 
             matlab.GetWorkspaceData("Q_L", "base", out qL);
-            matlab.GetWorkspaceData("Q_UL", "base", out qUL);
-            matlab.GetWorkspaceData("f_center", "base", out f_center);
-            matlab.GetWorkspaceData("s21", "base", out s21);
+            matlab.GetWorkspaceData("Q_NA", "base", out qNA);
+            matlab.GetWorkspaceData("f_res", "base", out fRes);
+            matlab.GetWorkspaceData("f_NA", "base", out fNA);
 
-            object[] result = { qL, qUL, f_center, s21 };
+            object[] result = { qL, qNA, fRes, fNA };
             return result;
         }
 
