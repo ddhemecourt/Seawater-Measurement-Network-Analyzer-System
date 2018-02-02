@@ -144,6 +144,7 @@
             this.resultPath.Name = "resultPath";
             this.resultPath.Size = new System.Drawing.Size(538, 26);
             this.resultPath.TabIndex = 11;
+            this.resultPath.TextChanged += new System.EventHandler(this.resultPath_TextChanged);
             // 
             // label4
             // 

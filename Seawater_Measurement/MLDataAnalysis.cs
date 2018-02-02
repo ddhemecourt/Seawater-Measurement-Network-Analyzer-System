@@ -95,16 +95,16 @@ namespace Seawater_Measurement
 
 
             j = 1;
-            while (wb.Sheets["Unloaded Q"].Cells[j, 2].Value2 != null)
+            while (wb.Sheets["Loaded Q"].Cells[j, 2].Value2 != null)
             {
                 j++;
             }
 
 
-            Excel.Range rngFirst = wb.Sheets["Unloaded Q"].Cells[1, 2];
+            Excel.Range rngFirst = wb.Sheets["Loaded Q"].Cells[1, 2];
             string rangeFirst = rngFirst.get_AddressLocal(false, false, Excel.XlReferenceStyle.xlA1);
 
-            Excel.Range rngSecond = wb.Sheets["Unloaded Q"].Cells[j, 2];
+            Excel.Range rngSecond = wb.Sheets["Loaded Q"].Cells[j, 2];
             string rangeSecond = rngSecond.get_AddressLocal(false, false, Excel.XlReferenceStyle.xlA1);
 
             string range = rangeFirst + ":" + rangeSecond;
@@ -124,11 +124,11 @@ namespace Seawater_Measurement
             matlab.PutWorkspaceData("SVD_Center_Sheet", "base", "SVD Center Frequency");
             matlab.PutWorkspaceData("num_avg", "base", num_avg);
 
-            string execute = string.Format("[manual_means,manual_stdevs,auto_means,auto_stdevs,sections,indices,a] = q_analysis(file,range,{0},num_avg)", sheetAnalysis.Text);
+            string execute = string.Format("[manual_means,manual_stdevs,sections,indices,a] = q_analysis(file,range,{0},num_avg)", sheetAnalysis.Text);
 
-            Console.WriteLine(matlab.Execute("[manual_means,manual_stdevs,auto_means,auto_stdevs,sections,indices,a] = q_analysis(file,range,Q_Loaded_Sheet,num_avg)"));
+            Console.WriteLine(matlab.Execute("[manual_means,manual_stdevs,sections,indices,a] = q_analysis(file,range,Q_Loaded_Sheet,num_avg)"));
 
-            object sections = getMLData(matlab)[4];
+            object sections = getMLData(matlab)[2];
             int sectionNum = Convert.ToInt16(sections);
 
 
@@ -156,7 +156,7 @@ namespace Seawater_Measurement
 
 
             //Obtain the workspace data returned from the MATLAB Script and fill the new excel file with that data
-            object indices = getMLData(matlab)[5];
+            object indices = getMLData(matlab)[3];
             IEnumerable enumerable = indices as IEnumerable;
 
             if (enumerable != null)
@@ -344,7 +344,7 @@ namespace Seawater_Measurement
 
 
 
-            object a = getMLData(matlab)[6];
+            object a = getMLData(matlab)[4];
             enumerable = a as IEnumerable;
 
             if (enumerable != null)
@@ -557,16 +557,20 @@ namespace Seawater_Measurement
 
             matlab.GetWorkspaceData("manual_means", "base", out manual_means);
             matlab.GetWorkspaceData("manual_stdevs", "base", out manual_stdevs);
-            matlab.GetWorkspaceData("auto_means", "base", out auto_means);
-            matlab.GetWorkspaceData("auto_stdevs", "base", out auto_stdevs);
+           // matlab.GetWorkspaceData("auto_means", "base", out auto_means);
+           // matlab.GetWorkspaceData("auto_stdevs", "base", out auto_stdevs);
             matlab.GetWorkspaceData("sections", "base", out sections);
             matlab.GetWorkspaceData("indices", "base", out indices);
             matlab.GetWorkspaceData("a", "base", out a);
 
-            object[] result = { manual_means, manual_stdevs, auto_means, auto_stdevs, sections, indices, a };
+            object[] result = { manual_means, manual_stdevs, sections, indices, a };
             return result;
 
         }
 
+        private void resultPath_TextChanged(object sender, EventArgs e)
+        {
+
+        }
     }
 }

@@ -496,26 +496,32 @@ namespace Seawater_Measurement
 
             runScript(matlab);
 
-            j = 2;
-       /*     while (Workbook.rawData.Cells[10, j].Value2 != null)
-            {
-                string address1 = Workbook.CellAddress(10, j);
-                string address2 = Workbook.CellAddress(1608, j);
-                string address = string.Format(address1 + ":" + address2);
-                Console.WriteLine("Column address = " + address);
-                
-                Workbook.addData(j / 2, 2, Q_L.ToString(), "Q_Loaded");
-                Workbook.addData(j / 2, 3, Q_L.ToString(), "SVD vs NA Diff");
-                Workbook.addData(j / 2, 2, Q_UL.ToString(), "Q_Unloaded");
-                Workbook.addData(j / 2, 2, f_center.ToString(), "f_center");
-                Workbook.addData(j / 2, 3, f_center.ToString(), "svd_na_center");
-                Workbook.addData(j / 2, 2, s21.ToString(), "s21");
+            Status.Text = "Done";
+            Status.Refresh();
+
+            Workbook.generateChart(dataCol / 2);
+            Workbook.workbook.Save();
 
 
-                matlab.Execute("clear");
-                j = j + 2;
+            /*     while (Workbook.rawData.Cells[10, j].Value2 != null)
+                 {
+                     string address1 = Workbook.CellAddress(10, j);
+                     string address2 = Workbook.CellAddress(1608, j);
+                     string address = string.Format(address1 + ":" + address2);
+                     Console.WriteLine("Column address = " + address);
 
-            }*/
+                     Workbook.addData(j / 2, 2, Q_L.ToString(), "Q_Loaded");
+                     Workbook.addData(j / 2, 3, Q_L.ToString(), "SVD vs NA Diff");
+                     Workbook.addData(j / 2, 2, Q_UL.ToString(), "Q_Unloaded");
+                     Workbook.addData(j / 2, 2, f_center.ToString(), "f_center");
+                     Workbook.addData(j / 2, 3, f_center.ToString(), "svd_na_center");
+                     Workbook.addData(j / 2, 2, s21.ToString(), "s21");
+
+
+                     matlab.Execute("clear");
+                     j = j + 2;
+
+                 }*/
         }
 
 
