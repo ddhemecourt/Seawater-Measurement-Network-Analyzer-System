@@ -921,16 +921,17 @@ namespace Seawater_Measurement
           //  NA.Write(":CALC:SEL:MARK:ACT ON;*WAI;");
             NA.Write(":CALC:SEL:MARK:STAT 1;*WAI;");
             NA.Write(":CALC:SEL:MARK:BWID:THR -3;"); //Set -3db as the Bandwidth threshold
-                                                          //  NA.Write(":CALC:PAR:SEL;*WAI;");
+                                                     //  NA.Write(":CALC:PAR:SEL;*WAI;");
 
-       //     NA.Write(":CALC:SEL:MARK:BWID:THR?;WAI*;");
-       //     string test = NA.ReadString();
-       //     Console.WriteLine(test);
+            //     NA.Write(":CALC:SEL:MARK:BWID:THR?;WAI*;");
+            //     string test = NA.ReadString();
+            //     Console.WriteLine(test);
 
-            NA.Write(":CALC:SEL:MARK:BWID:DATA?;");// Ask for the data, which gets returned as {BW},{Cent Freq.},{Q},{Loss}
-            string returnedBW = NA.ReadString(ARRAYSIZE);
             try
             {
+                NA.Write(":CALC:SEL:MARK:BWID:DATA?;");// Ask for the data, which gets returned as {BW},{Cent Freq.},{Q},{Loss}
+                string returnedBW = NA.ReadString(ARRAYSIZE);
+
                 double magnitude;
                 double power;
                 double val;
@@ -977,7 +978,7 @@ namespace Seawater_Measurement
             }
             catch
             {
-                Console.WriteLine("returning");
+                generateErrorMessage("NA Could Not Read BW, Q Value, and Center Freq. Check to see if signal is out of range.");
                 return;
             }
 

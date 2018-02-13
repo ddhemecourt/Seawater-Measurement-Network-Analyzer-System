@@ -124,9 +124,9 @@ namespace Seawater_Measurement
             matlab.PutWorkspaceData("SVD_Center_Sheet", "base", "SVD Center Frequency");
             matlab.PutWorkspaceData("num_avg", "base", num_avg);
 
-            string execute = string.Format("[manual_means,manual_stdevs,sections,indices,a] = q_analysis(file,range,{0},num_avg)", sheetAnalysis.Text);
+            string execute = string.Format("[manual_means,manual_stdevs,sections,indices,a] = q_analysis_new(file,range,{0},num_avg)", sheetAnalysis.Text);
 
-            Console.WriteLine(matlab.Execute("[manual_means,manual_stdevs,sections,indices,a] = q_analysis(file,range,Q_Loaded_Sheet,num_avg)"));
+            Console.WriteLine(matlab.Execute("[manual_means,manual_stdevs,sections,indices,a] = q_analysis_new(file,range,Q_Loaded_Sheet,num_avg)"));
 
             object sections = getMLData(matlab)[2];
             int sectionNum = Convert.ToInt16(sections);

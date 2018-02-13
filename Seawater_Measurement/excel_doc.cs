@@ -91,10 +91,10 @@ namespace Seawater_Measurement
                     sample_title = string.Format("Sample {0}", (i+1).ToString());
                     addData(level + 5 + i, 1, sample_title, "analysis");
                 }
-
+                
                 addData(level + 5+sample_count, 1, "Average", "analysis");
                 addData(level + 6+sample_count, 1, "Standard Dev.", "analysis");
-
+                /*
                 addData(level + 8 + sample_count, 1, "Automatic", "analysis");
                 workSheet_range = Analysis.Range[Analysis.Cells[level + 8 + sample_count, 1], Analysis.Cells[level + 8 + sample_count, 9]];
                 workSheet_range.Font.Italic = true;
@@ -122,7 +122,7 @@ namespace Seawater_Measurement
                 addData(level + 10 + (2)*sample_count, 1, "Average", "analysis");
                 addData(level + 11 + (2)*sample_count, 1, "Standard Dev.", "analysis");
                 workSheet_range = Analysis.Range[Analysis.Cells[1, 1], Analysis.Cells[level + 1000 + sample_count, 1]];
-                workSheet_range.Font.Bold = 1;
+                workSheet_range.Font.Bold = 1;*/
 
             }
 
